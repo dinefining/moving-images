@@ -1,0 +1,83 @@
+:root {
+  --paper: #fff;
+  --ink: #111;
+  --label: #9a9a9a;
+  --sheet: #e8e8e8;
+  --chip: #d4d4d4;
+  --rec: #e8261c;
+  --dot: #0bdb00;
+  --gap: 8px;
+  --corner: 40px;
+  --row: 32px;
+  --sheet-w: min(280px, calc(100vw - 2 * var(--gap)));
+}
+
+html, body {
+  margin: 0; height: 100%; overflow: hidden; background: var(--paper); color: var(--ink);
+  font: 500 11px/1.4 "JetBrains Mono", ui-monospace, monospace;
+  -webkit-font-smoothing: antialiased;
+}
+button { font: inherit; color: inherit; }
+
+canvas { position: fixed; inset: 0; width: 100vw; height: 100vh; cursor: none; touch-action: none; }
+
+/* ---- corner buttons ---- */
+.corner {
+  position: fixed; z-index: 2; width: var(--corner); height: var(--corner); padding: 0;
+  border: 0; border-radius: 50%; background: var(--sheet); cursor: pointer;
+  display: grid; place-items: center; user-select: none;
+}
+.corner.tl { top: var(--gap); left: var(--gap); }
+.corner.br { right: var(--gap); bottom: var(--gap); }
+.corner .word { font-weight: 500; font-size: 12.5px; line-height: 12px; letter-spacing: .02em; text-align: center; }
+.corner .x { display: none; width: 22px; height: 22px; fill: none; stroke: var(--ink); stroke-width: 1.6; }
+.corner[aria-expanded="true"] { background: var(--dot); }
+.corner[aria-expanded="true"] .word { display: none; }
+.corner[aria-expanded="true"] .x { display: block; }
+.corner:focus-visible, .ctl:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+
+/* ---- sheets ---- */
+.sheet {
+  position: fixed; z-index: 2; box-sizing: border-box; width: var(--sheet-w);
+  background: var(--sheet); user-select: none;
+}
+.sheet[hidden] { display: none !important; }
+.sheet.tl { top: calc(var(--gap) + var(--corner) + 6px); left: var(--gap); padding: 6px; display: grid; gap: 6px; }
+.sheet.br { right: var(--gap); bottom: calc(var(--gap) + var(--corner) + 6px); padding: 10px 10px 12px; font-weight: 400; font-size: 12px; line-height: 17px; }
+.sheet.br p { margin: 0; }
+.sheet.br a { color: inherit; text-decoration: underline; text-underline-offset: 2px; }
+.sheet.br p + p { margin-top: 17px; }
+
+/* ---- controls ---- */
+.ctl {
+  position: relative; overflow: hidden; height: var(--row); box-sizing: border-box;
+  display: grid; place-items: center; margin: 0; padding: 0 8px; border: 0;
+  background: var(--paper); color: var(--label); cursor: pointer; white-space: nowrap;
+}
+.ctl.pill, .ctl.pill .fill { border-radius: calc(var(--row) / 2); }
+.ctl.sq, .ctl.sq .fill { border-radius: 0; }
+.ctl > span { position: relative; pointer-events: none; max-width: 100%; overflow: hidden; text-overflow: ellipsis; }
+.ctl .fill {
+  position: absolute; left: 0; top: 0; bottom: 0; width: calc(var(--p, 0) * 100%);
+  background: var(--chip); pointer-events: none;
+}
+.slider { cursor: ew-resize; touch-action: none; }
+.toggle.on { background: var(--chip); }
+#record.on { background: var(--rec); color: #fff; }
+
+/* cursor dot lives outside the canvas so it never ends up in recordings or PNGs */
+#dot {
+  position: fixed; left: 0; top: 0; z-index: 1; width: 18px; height: 18px; margin: -9px 0 0 -9px;
+  border-radius: 50%; background: var(--dot); pointer-events: none;
+}
+#dot[hidden] { display: none; }
+body.recording #dot { background: var(--rec); }
+#upload input { display: none; }
+
+.trio { display: grid; grid-template-columns: repeat(3, 1fr); }
+
+/* ---- drag & drop ---- */
+#drop { position: fixed; inset: 0; z-index: 1; pointer-events: none; background: rgba(0, 0, 0, .04); }
+
+/* off-screen video used for frame capture */
+#hold { position: fixed; left: -10px; top: -10px; width: 2px; height: 2px; opacity: .01; pointer-events: none; }
